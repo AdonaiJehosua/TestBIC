@@ -11,21 +11,28 @@ const path = './data.zip'
 
 async function prepareBIC() {
     try {
+
+        // Пустые массивы для удобства
+        let preparedData = []
+        let compliteData = []
+
+        // Скачиваем, сохраняем
         const response = await fetch(url)
         const streamPipeline = promisify(pipeline);
         await streamPipeline(response.body, createWriteStream(path))
 
+        // Подключаем архиватор
         const zip = new AdmZip(path)
 
-        let preparedData = []
-        let compliteData = []
-
+        
+        // Считываем файл из архива, декодируем его, конвертируем в js-объект, убирая все лишнее, и записываем в подготовленный ранее массив
         zip.getEntries().forEach(entry => {
             const decompressedData = iconv.decode(zip.readFile(entry), 'windows1251')
             preparedData = convert.xml2js(decompressedData, { compact: true, ignoreDeclaration: true })
                 .ED807.BICDirectoryEntry.filter(el => el.Accounts)
         })
 
+        // Пробегаемся по подготовленным данным, наполняя второй из подготовленных массивов требуемыми объектами
         preparedData.map(el => {
             if (Array.isArray(el.Accounts)) {
                 el.Accounts.map((acc) => {
@@ -46,6 +53,7 @@ async function prepareBIC() {
             }
         })
 
+        // Удаляем скачанный архив
         unlinkSync(path)
 
         return compliteData

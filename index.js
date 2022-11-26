@@ -9,7 +9,7 @@ import { createWriteStream, unlinkSync } from 'node:fs'
 const url = 'http://www.cbr.ru/s/newbik'
 const path = './data.zip'
 
-async function prepareBIC() {
+async function getBic() {
     try {
 
         // Пустые массивы для удобства
@@ -63,4 +63,4 @@ async function prepareBIC() {
     }
 }
 
-prepareBIC()
+getBic()
